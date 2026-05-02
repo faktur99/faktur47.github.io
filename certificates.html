@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Certificates</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>body{padding-top:70px;}</style>
+</head>
+<body>
+<div data-include="template/navbar.html"></div>
+
+<main class="container mt-5 pt-5">
+  <h2 id="certTitle">Certificates</h2>
+  <p class="text-muted" id="certDesc">Klik gambar untuk memperbesar.</p>
+  <div id="certGallery" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4"></div>
+  <a href="index.html" class="btn btn-outline-secondary mt-3">Kembali</a>
+</main>
+
+<script src="assets/js/vendor/glightbox.min.js"></script>
+<script>
+(() => {
+  const params = new URLSearchParams(location.search);
+  const group = params.get('group') || 'dicoding';
+  document.getElementById('certTitle').textContent = 'Certificates - ' + (group.charAt(0).toUpperCase() + group.slice(1));
+  document.getElementById('certDesc').innerHTML = 'Menampilkan 6 sertifikat untuk grup <strong>' + (group.charAt(0).toUpperCase() + group.slice(1)) + '</strong>. Klik gambar untuk memperbesar.';
+
+  const certData = {
+    dicoding: [
+      { title: 'Belajar Dasar Data Science', subtitle: 'diCoding — 2026', img: 'assets/images/Certificates/dicoding/Data_Science.png' },
+      { title: 'Belajar Dasar Structured Query Language (SQL)', subtitle: 'diCoding — 2026', img: 'assets/images/Certificates/dicoding/Belajar_(SQL).png' },
+      { title: 'Introduction to Financial Literacy', subtitle: 'diCoding — 2026', img: 'assets/images/Certificates/dicoding/Introduction_to_Financial.png' },
+      { title: 'Memulai Pemrograman dengan Python', subtitle: 'diCoding — 2026', img: 'assets/images/Certificates/dicoding/Python.png' },
+      { title: 'Spec-Driven Development dengan kiro', subtitle: 'diCoding — 2026', img: 'assets/images/Certificates/dicoding/Kiro.png' },
+    ],
+    sololearn: [
+      { title: 'Introduction to CSS', subtitle: 'SoloLearn — 2025', img: 'assets/images/Certificates/sololearn/Sertifikat_Introduction_CSS.jpeg' },
+      { title: 'Introduction to HTML', subtitle: 'SoloLearn — 2025', img: 'assets/images/Certificates/sololearn/Sertifikat_Introduction_Html.jpeg' },
+      { title: 'Introduction to SQL', subtitle: 'SoloLearn — 2025', img: 'assets/images/Certificates/sololearn/Sertifikat_Introduction_SQL.jpeg' },
+      { title: 'SQL Intermediate', subtitle: 'SoloLearn — 2025', img: 'assets/images/Certificates/sololearn/Sertikat_ntermediate.jpeg' },
+    ],
+    course: [
+      { title: 'Networking Introduction', subtitle: 'Intern — 2020', img: 'assets/images/Certificates/course/magang.jpeg' },
+      { title: 'Fiber Optic Basics', subtitle: 'Intern — 2022', img: 'assets/images/Certificates/course/fiber.jpeg' },
+      { title: 'Router Configuration', subtitle: 'Intern — 2023', img: 'assets/images/Certificates/course/Blk.jpeg' },
+    ],
+  };
+
+  function render(groupName){
+    const items = certData[groupName] || [];
+    const gallery = document.getElementById('certGallery');
+    gallery.innerHTML = items.map(it => `
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm cert-card">
+          <a href="${it.img}" class="glightbox d-block position-relative" data-gallery="cert-${groupName}">
+            <div class="cert-img bg-light d-flex align-items-center justify-content-center overflow-hidden" style="height:200px;">
+              <img src="${it.img}" alt="${it.title}" class="img-fluid" style="max-height:200px; width:auto;">
+            </div>
+            <span class="position-absolute top-0 end-0 m-2 badge bg-primary">View</span>
+          </a>
+          <div class="card-body py-2"><h6 class="card-title mb-1">${it.title}</h6><p class="card-text small text-muted mb-0">${it.subtitle}</p></div>
+        </div>
+      </div>
+    `).join('');
+    if (typeof GLightbox === 'function' || typeof glightbox === 'function') GLightbox({ selector: '.glightbox' });
+    }
+
+    (function waitForGL(){ if (typeof GLightbox === 'function' || typeof glightbox === 'function'){ render(group); } else setTimeout(waitForGL,100); })();
+})();
+</script>
+  <div data-include="template/footer.html"></div>
+  <script src="assets/js/includes.js"></script>
+  </body>
+  </html>

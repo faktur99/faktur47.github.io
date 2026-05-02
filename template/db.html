@@ -1,0 +1,96 @@
+<?php
+// Simple SQLite DB helper using PDO. Creates DB and tables on first use.
+class DB {
+  private static $pdo;
+
+  public static function pdo() {
+    if (self::$pdo) return self::$pdo;
+    $dir = __DIR__ . '/../data';
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    $file = $dir . '/app.db';
+    $needInit = !file_exists($file);
+    $dsn = 'sqlite:' . $file;
+    self::$pdo = new PDO($dsn);
+    self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    if ($needInit) self::init(self::$pdo);
+    return self::$pdo;
+  }
+
+  private static function init($pdo) {
+    $pdo->exec("CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      email TEXT UNIQUE,
+      role TEXT DEFAULT 'user',
+      photo TEXT,
+      status INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
+    );");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS attendance (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      status TEXT,
+      time TEXT,
+      lat REAL,
+      lon REAL,
+      photo TEXT,
+      location_id INTEGER,
+      created_at TEXT DEFAULT (datetime('now'))
+    );");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS locations (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      lat REAL,
+      lon REAL,
+      radius INTEGER DEFAULT 50,
+      created_at TEXT DEFAULT (datetime('now'))
+    );");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS settings (
+      `key` TEXT PRIMARY KEY,
+      `value` TEXT
+    );");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      action TEXT,
+      note TEXT,
+      created_at TEXT DEFAULT (datetime('now'))
+    );");
+
+    // insert defaults
+    $stmt = $pdo->prepare("INSERT OR IGNORE INTO settings (`key`,`value`) VALUES (?,?)");
+    $defaults = [
+      ['work_start','08:00:00'],
+      ['work_end','16:00:00'],
+      ['late_tolerance','00:15:00'],
+      ['gps_radius','50'],
+      ['face_confidence','0.65']
+    ];
+    foreach ($defaults as $d) $stmt->execute($d);
+  }
+
+  public static function fetchAll($sql, $params = []){
+    $stmt = self::pdo()->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public static function fetch($sql, $params = []){
+    $stmt = self::pdo()->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+  }
+
+  public static function exec($sql, $params = []){
+    $stmt = self::pdo()->prepare($sql);
+    return $stmt->execute($params);
+  }
+}
+
+function db() { return DB::pdo(); }
+
+?>

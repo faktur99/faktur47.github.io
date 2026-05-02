@@ -1,0 +1,34 @@
+<?php
+function base_url($path = "") {
+  $base = "http://localhost/portofolio/"; // match workspace folder name
+  return $base . ltrim($path, '/');
+}
+
+// Contact recipient for form messages
+if (!defined('CONTACT_EMAIL')) define('CONTACT_EMAIL', 'you@example.com');
+
+function get_projects() {
+  return [
+    [
+      'thumb' => base_url('assets/images/projects/spk.png'),
+      'title' => 'SPK Project',
+      'short' => 'Sistem Pendukung Keputusan sederhana.'
+    ],
+    [
+      'thumb' => base_url('assets/images/projects/lav.png'),
+      'title' => 'Landing Page',
+      'short' => 'Prototype landing page responsif.'
+    ],
+    [
+      'thumb' => base_url('assets/images/projects/adminlte3.png'),
+      'title' => 'Admin Panel',
+      'short' => 'Template admin dengan fitur dasar.'
+    ],
+    [
+      'thumb' => base_url('assets/images/services/cisco.png'),
+      'title' => 'Network Tools',
+      'short' => 'Toolset untuk simulasi jaringan.'
+    ],
+  ];
+}
+?>

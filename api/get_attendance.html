@@ -1,0 +1,10 @@
+<?php
+require_once __DIR__ . '/../template/config.html';
+require_once __DIR__ . '/../template/db.html';
+header('Content-Type: application/json');
+
+$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 20;
+$rows = DB::fetchAll("SELECT a.*, u.name as user_name, l.name as location_name FROM attendance a LEFT JOIN users u ON u.id=a.user_id LEFT JOIN locations l ON l.id=a.location_id ORDER BY a.id DESC LIMIT ?", [$limit]);
+echo json_encode(['success'=>true,'data'=>$rows]);
+
+?>

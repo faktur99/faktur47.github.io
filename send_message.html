@@ -1,0 +1,64 @@
+<?php
+require 'template/config.html';
+header('Content-Type: application/json; charset=utf-8');
+
+// Only accept POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(405);
+  echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+  exit;
+}
+
+// Read input (support form-encoded and JSON)
+$name = trim($_POST['name'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$message = trim($_POST['message'] ?? '');
+
+// basic validation
+if ($name === '' || $email === '' || $message === '') {
+  http_response_code(400);
+  echo json_encode(['success' => false, 'message' => 'Semua field wajib diisi.']);
+  exit;
+}
+
+// prevent header injection
+$pattern = '/[\r\n]/';
+if (preg_match($pattern, $name) || preg_match($pattern, $email)) {
+  http_response_code(400);
+  echo json_encode(['success' => false, 'message' => 'Invalid input']);
+  exit;
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+  http_response_code(400);
+  echo json_encode(['success' => false, 'message' => 'Alamat email tidak valid']);
+  exit;
+}
+
+$to = CONTACT_EMAIL;
+$subject = "[Portfolio] Pesan dari $name";
+$body = "Anda menerima pesan dari situs portfolio:\n\n";
+$body .= "Nama: $name\n";
+$body .= "Email: $email\n\n";
+$body .= "Pesan:\n$message\n";
+
+$headers = [];
+$headers[] = 'From: ' . $email;
+$headers[] = 'Reply-To: ' . $email;
+$headers[] = 'MIME-Version: 1.0';
+$headers[] = 'Content-Type: text/plain; charset=UTF-8';
+
+$ok = false;
+// Try to send email via mail(); if mail() is not available, return success=false with message
+if (function_exists('mail')) {
+  $ok = mail($to, $subject, $body, implode("\r\n", $headers));
+}
+
+if ($ok) {
+  echo json_encode(['success' => true, 'message' => 'Pesan terkirim. Terima kasih!']);
+} else {
+  http_response_code(500);
+  echo json_encode(['success' => false, 'message' => 'Gagal mengirim pesan dari server. Coba lagi nanti.']);
+}
+
+?>
